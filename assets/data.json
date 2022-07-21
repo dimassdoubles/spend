@@ -1,6 +1,6 @@
 {
     "balance": 200000,
-    "saily_target": 50000,
+    "daily_target": 50000,
     "transactions": [
         {
             "date": "21/07",
