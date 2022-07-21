@@ -7,7 +7,22 @@
             "detail_transaction": [
                 {
                     "amount": 15000,
-                    "description": "Lorem Ipsum."
+                    "description": "Bakso"
+                },
+
+                {
+                    "amount": 2000,
+                    "description": "Parkir"
+                },
+
+                {
+                    "amount": 50000,
+                    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce magna erat, consequat aliquet molestie ut, aliquet et sapien. Aliquam nec nibh eget justo eleifend congue. In hac habitasse platea dictumst. Cras nunc orci, pretium eu risus ut, condimentum accumsan purus. Vestibulum quis arcu nulla. Sed venenatis tellus at ornare dapibus. Nulla facilisis magna non libero pulvinar rutrum. Cras nec eleifend nisl, at vehicula diam. Aenean aliquet vehicula tellus sed tempus. Curabitur ultricies neque at gravida laoreet. Curabitur malesuada risus eu eros pulvinar, hendrerit suscipit mauris fringilla."
+                },
+
+                {
+                    "amount": 13000,
+                    "description": "Mie ayam Bang Soleh"
                 }
             ]
         }
