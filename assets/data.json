@@ -1,0 +1,15 @@
+{
+    "balance": 200000,
+    "saily_target": 50000,
+    "transactions": [
+        {
+            "date": "21/07",
+            "detail_transaction": [
+                {
+                    "amount": 15000,
+                    "description": "Lorem Ipsum."
+                }
+            ]
+        }
+    ]
+}
