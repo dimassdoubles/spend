@@ -13,12 +13,6 @@ TextStyle interText(Color color, double size, [FontWeight fontWeight = FontWeigh
     fontSize: size,
     fontWeight: fontWeight,
   );
-  
-  // return TextStyle(
-  //   color: color,
-  //   fontSize: size,
-  //   fontWeight: fontWeight,
-  // );
 }
 
 TextStyle poppinsText(Color color, double size, [FontWeight fontWeight = FontWeight.normal]) {
@@ -27,9 +21,4 @@ TextStyle poppinsText(Color color, double size, [FontWeight fontWeight = FontWei
     fontSize: size,
     fontWeight: fontWeight,
   );
-  // return TextStyle(
-  //   color: color,
-  //   fontSize: size,
-  //   fontWeight: fontWeight,
-  // );
 }
