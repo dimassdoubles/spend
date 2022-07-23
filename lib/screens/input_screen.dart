@@ -1,23 +1,32 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:spend/models/data.dart';
+import 'package:spend/models/transaction.dart';
+import 'package:spend/screens/home_screen.dart';
 import 'package:spend/theme.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:async';
+import 'dart:convert';
 
 class InputScreen extends StatefulWidget {
-  const InputScreen({Key? key}) : super(key: key);
+  const InputScreen({Key? key, required this.data}) : super(key: key);
+
+  final Data data;
 
   @override
   State<InputScreen> createState() => _InputScreenState();
 }
 
 class _InputScreenState extends State<InputScreen> {
-  int _amount = 0;
-  String _description = "";
+  Data data = Data(balance: 0, dailyTarget: 0, transactions: []);
+  int amount = 0;
+  String description = "";
 
-  
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    data = widget.data;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,8 +73,15 @@ class _InputScreenState extends State<InputScreen> {
                   prefixStyle: interText(Colors.white, 20, FontWeight.bold),
                   border: InputBorder.none,
                 ),
-                onChanged: (String amount) {
-                  print(amount);
+                onChanged: (String value) {
+                  print(value);
+                  setState(() {
+                    try {
+                      amount = int.parse(value);
+                    } catch (e) {
+                      amount = 0;
+                    }
+                  });
                 },
               ),
             ),
@@ -92,8 +108,10 @@ class _InputScreenState extends State<InputScreen> {
                 decoration: InputDecoration(
                   border: InputBorder.none,
                 ),
-                onChanged: (String amount) {
-                  print(amount);
+                onChanged: (String value) {
+                  setState(() {
+                    description = value;
+                  });
                 },
               ),
             ),
@@ -104,6 +122,34 @@ class _InputScreenState extends State<InputScreen> {
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                   onPressed: () {
+                    if (amount > 0 && amount <= data.balance) {
+                      data.balance -= amount;
+                      data.transactions.add(Transaction(
+                          amount: amount, description: description));
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: ((context) => HomeScreen(data: data))),
+                          (route) => false);
+                    } else if (amount < 0 ){
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                          "Maaf, jumlah transaksi yang anda masukan tidak valid.",
+                          style: interText(Colors.white, 16),
+                        ),
+                        backgroundColor: red,
+                        duration: Duration(seconds: 2),
+                      ));
+                    } else if (amount > data.balance) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                          "Maaf, sisa saldo tidak mencukupi.",
+                          style: interText(Colors.white, 16),
+                        ),
+                        backgroundColor: red,
+                        duration: Duration(seconds: 2),
+                      ));
+                    }
                   },
                   child: Padding(
                     padding:
