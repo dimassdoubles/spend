@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:spend/screens/home_screen.dart';
-import 'package:spend/screens/input_screen.dart';
 import 'package:spend/theme.dart';
 
 import 'models/data.dart';
