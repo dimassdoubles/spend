@@ -6,8 +6,6 @@ import 'package:spend/theme.dart';
 import '../models/data.dart';
 import '../models/transaction.dart';
 
-import 'package:flutter/foundation.dart';
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key, required this.data}) : super(key: key);
 
@@ -46,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'SPEND ${MediaQuery.of(context).size.width.round()}, ${MediaQuery.of(context).size.height.round()}',
+          'SPEND',
           style: interText(green, 32, FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
@@ -69,73 +67,100 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(
-              height: 32,
+        child: LayoutBuilder(
+          builder: ((context, constraints) {
+            if (constraints.maxHeight <= 50) {
+              return Text(
+                "Maaf, tinggi minimal tidak terpenuhi.",
+                style: poppinsText(Colors.white, 16),
+              );
+            } else if (constraints.maxWidth < 328) {
+              return Text(
+                "Maaf, lebar minimal tidak terpenuhi.",
+                style: poppinsText(Colors.white, 16),
+              );
+            } else if (constraints.maxHeight <= 400) {
+              return getWebView();
+            } else if (constraints.maxWidth >= 550) {
+              return getWebView();
+            } else {
+              return getMobileView();
+            }
+          }),
+        ),
+      ),
+    );
+  }
+
+  Widget getWebView() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SingleChildScrollView(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              'Total saldo',
+              style: poppinsText(grey, 12),
             ),
-            Column(
+            const SizedBox(
+              height: 5,
+            ),
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Total saldo',
-                  style: poppinsText(grey, 12),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Container(
-                        color: isEditBalance ? lightBlue : Colors.transparent,
-                        child: IntrinsicWidth(
-                          child: TextFormField(
-                            initialValue: "${data.balance}",
-                            onFieldSubmitted: (String value) {
-                              setState(() {
-                                isEditBalance = false;
-                                data.balance = int.parse(value);
-                              });
-                            },
-                            enabled: isEditBalance ? true : false,
-                            style: interText(Colors.white, 20, FontWeight.bold),
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                            ],
-                            autofocus: isEditBalance ? true : false,
-                            decoration: InputDecoration(
-                              prefixText: 'Rp ',
-                              prefixStyle:
-                                  interText(Colors.white, 20, FontWeight.bold),
-                              isDense: true,
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
+                Container(
+                  color: isEditBalance ? lightBlue : Colors.transparent,
+                  child: IntrinsicWidth(
+                    child: TextFormField(
+                      initialValue: "${data.balance}",
+                      onFieldSubmitted: (String value) {
+                        setState(() {
+                          isEditBalance = false;
+                          if (value != "") {
+                            data.balance = int.parse(value);
+                          } else {
+                            data.balance = 0;
+                          }
+                        });
+                      },
+                      enabled: isEditBalance ? true : false,
+                      style: interText(Colors.white, 20, FontWeight.bold),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(7),
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                      ],
+                      autofocus: isEditBalance ? true : false,
+                      decoration: InputDecoration(
+                        prefixText: 'Rp ',
+                        prefixStyle:
+                            interText(Colors.white, 20, FontWeight.bold),
+                        isDense: true,
+                        border: InputBorder.none,
                       ),
                     ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    isEditBalance
-                        ? SizedBox()
-                        : IconButton(
-                            icon: Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                isEditBalance = true;
-                              });
-                            },
-                          ),
-                  ],
+                  ),
                 ),
+                SizedBox(
+                  width: 5,
+                ),
+                isEditBalance
+                    ? SizedBox(
+                        width: 40,
+                      )
+                    : IconButton(
+                        icon: Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isEditBalance = true;
+                          });
+                        },
+                      ),
               ],
             ),
             const SizedBox(
@@ -145,111 +170,279 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(
               height: 28,
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               children: [
-                Row(
-                  children: [
-                    Text(
-                      'Target pengeluaran harian',
-                      style: poppinsText(grey, 12),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Flexible(
-                      child: Container(
-                        color: isEditDailyTarget ? lightBlue : Colors.transparent,
-                        child: IntrinsicWidth(
-                          child: TextFormField(
-                            onFieldSubmitted: (String value) {
-                              setState(() {
-                                data.dailyTarget = int.parse(value);
-                                isEditDailyTarget = false;
-                              });
-                            },
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                            ],
-                            style: poppinsText(green, 12),
-                            initialValue: "${data.dailyTarget}",
-                            enabled: isEditDailyTarget ? true : false,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              prefixText: '( Rp ',
-                              prefixStyle: poppinsText(green, 12),
-                              suffixText: ' )',
-                              suffixStyle: poppinsText(green, 12),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    isEditDailyTarget
-                        ? SizedBox()
-                        : IconButton(
-                            icon:
-                                Icon(Icons.edit, color: Colors.white, size: 20),
-                            onPressed: () {
-                              setState(() {
-                                isEditDailyTarget = true;
-                              });
-                            },
-                          ),
-                    // Text(
-                    //   '( Rp ${data.dailyTarget} )',
-                    //   style: poppinsText(green, 12),
-                    // ),
-                  ],
+                Text(
+                  'Target pengeluaran harian',
+                  style: poppinsText(grey, 12),
                 ),
                 const SizedBox(
-                  height: 5,
+                  width: 5,
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: (data.dailyTarget >= dailyTransactionAmount)
-                      ? [
-                          Text(
-                            'Rp ${data.dailyTarget - dailyTransactionAmount}',
-                            style: interText(Colors.white, 16, FontWeight.w600),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'tersisa',
-                            style: poppinsText(green, 12),
-                          )
-                        ]
-                      : [
-                          Text(
-                            'Rp ${dailyTransactionAmount - data.dailyTarget}',
-                            style: interText(Colors.white, 16, FontWeight.w600),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'melebihi target',
-                            style: poppinsText(red, 12),
-                          )
-                        ],
+                Container(
+                  color: isEditDailyTarget ? lightBlue : Colors.transparent,
+                  child: IntrinsicWidth(
+                    child: TextFormField(
+                      onFieldSubmitted: (String value) {
+                        setState(() {
+                          isEditDailyTarget = false;
+                          if (value != "") {
+                            data.dailyTarget = int.parse(value);
+                          } else {
+                            data.dailyTarget = 0;
+                          }
+                        });
+                      },
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(7),
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                      ],
+                      style: poppinsText(green, 12),
+                      initialValue: "${data.dailyTarget}",
+                      enabled: isEditDailyTarget ? true : false,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        prefixText: '( Rp ',
+                        prefixStyle: poppinsText(green, 12),
+                        suffixText: ' )',
+                        suffixStyle: poppinsText(green, 12),
+                      ),
+                    ),
+                  ),
                 ),
+                isEditDailyTarget
+                    ? SizedBox(
+                        width: 40,
+                      )
+                    : IconButton(
+                        icon: Icon(Icons.edit, color: Colors.white, size: 20),
+                        onPressed: () {
+                          setState(() {
+                            isEditDailyTarget = true;
+                          });
+                        },
+                      ),
               ],
             ),
-            // DailyTarget(
-            //   dailyTarget: data.dailyTarget,
-            //   dailyTransactionAmount: dailyTransactionAmount,
-            // ),
             const SizedBox(
-              height: 28,
+              height: 5,
             ),
-            Expanded(
-              child: Transactions(
-                dailyTransactionAmount: dailyTransactionAmount,
-                transactions: data.transactions,
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: (data.dailyTarget >= dailyTransactionAmount)
+                  ? [
+                      Text(
+                        'Rp ${data.dailyTarget - dailyTransactionAmount}',
+                        style: interText(Colors.white, 16, FontWeight.w600),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'tersisa',
+                        style: poppinsText(green, 12),
+                      )
+                    ]
+                  : [
+                      Text(
+                        'Rp ${dailyTransactionAmount - data.dailyTarget}',
+                        style: interText(Colors.white, 16, FontWeight.w600),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'melebihi target',
+                        style: poppinsText(red, 12),
+                      )
+                    ],
+            ),
+          ]),
+        ),
+        Expanded(
+          child: Transactions(
+            dailyTransactionAmount: dailyTransactionAmount,
+            transactions: data.transactions,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget getMobileView() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          height: 32,
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Total saldo',
+              style: poppinsText(grey, 12),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Row(
+              children: [
+                Container(
+                  color: isEditBalance ? lightBlue : Colors.transparent,
+                  child: IntrinsicWidth(
+                    child: TextFormField(
+                      initialValue: "${data.balance}",
+                      onFieldSubmitted: (String value) {
+                        setState(() {
+                          isEditBalance = false;
+                          if (value != "") {
+                            data.balance = int.parse(value);
+                          } else {
+                            data.balance = 0;
+                          }
+                        });
+                      },
+                      enabled: isEditBalance ? true : false,
+                      style: interText(Colors.white, 20, FontWeight.bold),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(7),
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                      ],
+                      autofocus: isEditBalance ? true : false,
+                      decoration: InputDecoration(
+                        prefixText: 'Rp ',
+                        prefixStyle:
+                            interText(Colors.white, 20, FontWeight.bold),
+                        isDense: true,
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                isEditBalance
+                    ? SizedBox()
+                    : IconButton(
+                        icon: Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isEditBalance = true;
+                          });
+                        },
+                      ),
+              ],
             ),
           ],
         ),
-      ),
+        const SizedBox(
+          height: 28,
+        ),
+        const Date(),
+        const SizedBox(
+          height: 28,
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Target pengeluaran harian',
+                  style: poppinsText(grey, 12),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Container(
+                  color: isEditDailyTarget ? lightBlue : Colors.transparent,
+                  child: IntrinsicWidth(
+                    child: TextFormField(
+                      onFieldSubmitted: (String value) {
+                        setState(() {
+                          isEditDailyTarget = false;
+                          if (value != "") {
+                            data.dailyTarget = int.parse(value);
+                          } else {
+                            data.dailyTarget = 0;
+                          }
+                        });
+                      },
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(7),
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                      ],
+                      style: poppinsText(green, 12),
+                      initialValue: "${data.dailyTarget}",
+                      enabled: isEditDailyTarget ? true : false,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        prefixText: '( Rp ',
+                        prefixStyle: poppinsText(green, 12),
+                        suffixText: ' )',
+                        suffixStyle: poppinsText(green, 12),
+                      ),
+                    ),
+                  ),
+                ),
+                isEditDailyTarget
+                    ? SizedBox()
+                    : IconButton(
+                        icon: Icon(Icons.edit, color: Colors.white, size: 20),
+                        onPressed: () {
+                          setState(() {
+                            isEditDailyTarget = true;
+                          });
+                        },
+                      ),
+              ],
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: (data.dailyTarget >= dailyTransactionAmount)
+                  ? [
+                      Text(
+                        'Rp ${data.dailyTarget - dailyTransactionAmount}',
+                        style: interText(Colors.white, 16, FontWeight.w600),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'tersisa',
+                        style: poppinsText(green, 12),
+                      )
+                    ]
+                  : [
+                      Text(
+                        'Rp ${dailyTransactionAmount - data.dailyTarget}',
+                        style: interText(Colors.white, 16, FontWeight.w600),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'melebihi target',
+                        style: poppinsText(red, 12),
+                      )
+                    ],
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 28,
+        ),
+        Expanded(
+          child: Transactions(
+            dailyTransactionAmount: dailyTransactionAmount,
+            transactions: data.transactions,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -458,48 +651,6 @@ class Date extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class Balance extends StatelessWidget {
-  const Balance({Key? key, required this.balance}) : super(key: key);
-
-  final int balance;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Total saldo',
-          style: poppinsText(grey, 12),
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        Text(
-          'Rp $balance',
-          style: interText(Colors.white, 20, FontWeight.bold),
-        ),
-      ],
-    );
-  }
-}
-
-class Header extends StatelessWidget {
-  const Header({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Text(
-        'SPEND',
-        style: interText(green, 32, FontWeight.bold),
-      ),
     );
   }
 }

@@ -8,27 +8,28 @@ Color blue = Color.fromARGB(255, 35, 36, 67);
 Color red = Color.fromARGB(255, 225, 77, 77);
 
 TextStyle interText(Color color, double size, [FontWeight fontWeight = FontWeight.normal]) {
-  // return GoogleFonts.inter(
-  //   color: color,
-  //   fontSize: size,
-  //   fontWeight: fontWeight,
-  // );
-  return TextStyle(
+  return GoogleFonts.inter(
     color: color,
     fontSize: size,
     fontWeight: fontWeight,
   );
+  
+  // return TextStyle(
+  //   color: color,
+  //   fontSize: size,
+  //   fontWeight: fontWeight,
+  // );
 }
 
 TextStyle poppinsText(Color color, double size, [FontWeight fontWeight = FontWeight.normal]) {
-  // return GoogleFonts.poppins(
-  //   color: color,
-  //   fontSize: size,
-  //   fontWeight: fontWeight,
-  // );
-  return TextStyle(
+  return GoogleFonts.poppins(
     color: color,
     fontSize: size,
     fontWeight: fontWeight,
   );
+  // return TextStyle(
+  //   color: color,
+  //   fontSize: size,
+  //   fontWeight: fontWeight,
+  // );
 }
