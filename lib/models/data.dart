@@ -5,8 +5,5 @@ class Data {
   int dailyTarget;
   List<Transaction> transactions;
 
-  Data(
-      {required this.balance,
-      required this.dailyTarget,
-      required this.transactions});
+  Data({required this.balance, required this.dailyTarget, required this.transactions});
 }

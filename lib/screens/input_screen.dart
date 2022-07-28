@@ -1,34 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:spend/models/data.dart';
+import 'package:provider/provider.dart';
 import 'package:spend/models/transaction.dart';
-import 'package:spend/screens/home_screen.dart';
+import 'package:spend/providers/balance_provider.dart';
+import 'package:spend/providers/daily_target_provider.dart';
+import 'package:spend/providers/transactions_provider.dart';
+import 'package:spend/screens/home-screen/home_screen.dart';
 import 'package:spend/theme.dart';
-import 'dart:convert';
 
 class InputScreen extends StatefulWidget {
-  const InputScreen({Key? key, required this.data}) : super(key: key);
+  static const routeName = "/input-screen";
 
-  final Data data;
+  const InputScreen({Key? key}) : super(key: key);
+
+  // final Data data;
 
   @override
   State<InputScreen> createState() => _InputScreenState();
 }
 
 class _InputScreenState extends State<InputScreen> {
-  Data data = Data(balance: 0, dailyTarget: 0, transactions: []);
+  // Data data = Data(balance: 0, dailyTarget: 0, transactions: []);
   int amount = 0;
   String description = "";
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    data = widget.data;
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // provider
+    final balanceProvider = Provider.of<BalanceProvider>(context);
+    final dailyTargetProvider = Provider.of<DailyTargetProvider>(context);
+    final transactionsProvider = Provider.of<TransactionsProvider>(context);
+
+    int _balance = balanceProvider.balance;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -123,16 +127,17 @@ class _InputScreenState extends State<InputScreen> {
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
                     onPressed: () {
-                      if (amount > 0 && amount <= data.balance) {
-                        data.balance -= amount;
-                        data.transactions.add(Transaction(
+                      if (amount > 0 && amount <= _balance) {
+                        balanceProvider
+                            .setBalance(_balance -= amount);
+                        transactionsProvider.addTransaction(Transaction(
                             amount: amount, description: description));
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: ((context) => HomeScreen(data: data))),
+                                builder: ((context) => HomeScreen())),
                             (route) => false);
-                      } else if (amount < 0 ){
+                      } else if (amount < 0) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(
                             "Maaf, jumlah transaksi yang anda masukan tidak valid.",
@@ -141,7 +146,7 @@ class _InputScreenState extends State<InputScreen> {
                           backgroundColor: red,
                           duration: Duration(seconds: 2),
                         ));
-                      } else if (amount > data.balance) {
+                      } else if (amount > _balance) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(
                             "Maaf, sisa saldo tidak mencukupi.",
@@ -153,8 +158,8 @@ class _InputScreenState extends State<InputScreen> {
                       }
                     },
                     child: Padding(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 10),
                       child: Text(
                         'Submit',
                         style: poppinsText(blue, 20, FontWeight.w500),

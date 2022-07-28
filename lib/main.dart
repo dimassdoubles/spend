@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:spend/screens/home_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:spend/providers/balance_provider.dart';
+import 'package:spend/providers/daily_target_provider.dart';
+import 'package:spend/providers/transactions_provider.dart';
+import 'package:spend/screens/home-screen/home_screen.dart';
 import 'package:spend/theme.dart';
 
 import 'models/data.dart';
@@ -21,11 +25,24 @@ class MyApp extends StatelessWidget {
     Data data = Data(
         balance: balance, dailyTarget: dailyTarget, transactions: transactions);
 
-    return MaterialApp(
-      theme: ThemeData(
-        scaffoldBackgroundColor: blue,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => BalanceProvider(),),
+        ChangeNotifierProvider(create: (context) => DailyTargetProvider(),),
+        ChangeNotifierProvider(create: (context) => TransactionsProvider(),),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          scaffoldBackgroundColor: blue,
+        ),
+        // home: HomeScreen(data: data),
+        home: HomeScreen(),
+        routes: {
+          HomeScreen.routeName: (context) => HomeScreen(),
+          // InputScreen.routeName: (context) => InputScreen(),
+        },
       ),
-      home: HomeScreen(data: data),
     );
   }
 }
