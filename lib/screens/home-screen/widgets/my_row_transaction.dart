@@ -1,13 +1,20 @@
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:spend/theme.dart';
 
 class MyRowTransaction extends StatelessWidget {
-  const MyRowTransaction(
+  MyRowTransaction(
       {Key? key, required this.amount, required this.description})
       : super(key: key);
 
   final int amount;
   final String description;
+
+  final CurrencyTextInputFormatter formatter = CurrencyTextInputFormatter(
+      locale: 'id',
+      decimalDigits: 0,
+      symbol: '',
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +25,7 @@ class MyRowTransaction extends StatelessWidget {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Text('$amount', style: interText(Colors.white, 12)),
+              child: Text(formatter.format('$amount'), style: interText(Colors.white, 12)),
             ),
           ),
           Expanded(

@@ -1,3 +1,4 @@
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +17,6 @@ class WebView extends StatefulWidget {
 }
 
 class _WebViewState extends State<WebView> {
-  int _dailyTransactionAmount = 0;
   bool _isEditBalance = false;
   bool _isEditDailyTarget = false;
 
@@ -31,11 +31,17 @@ class _WebViewState extends State<WebView> {
     int dailyTarget = dailyTargetProvider.dailyTarget;
     final transactions = transactionsProvider.transactions;
 
+    int dailyTransactionAmount = 0;
+
     for (int i = 0; i < transactions.length; i++) {
-      setState(() {
-        _dailyTransactionAmount += transactions[i].amount;
-      });
+      dailyTransactionAmount += transactions[i].amount;
     }
+
+    final CurrencyTextInputFormatter formatter = CurrencyTextInputFormatter(
+      locale: 'id',
+      decimalDigits: 0,
+      symbol: '',
+    );
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,12 +63,13 @@ class _WebViewState extends State<WebView> {
                   color: _isEditBalance ? lightBlue : Colors.transparent,
                   child: IntrinsicWidth(
                     child: TextFormField(
-                      initialValue: "${balance}",
+                      initialValue: formatter.format("${balance}"),
                       onFieldSubmitted: (String value) {
                         setState(() {
                           _isEditBalance = false;
                           if (value != "") {
-                            balanceProvider.setBalance(int.parse(value));
+                            balanceProvider.setBalance(
+                                int.parse(value.replaceAll(".", "")));
                           } else {
                             balanceProvider.setBalance(0);
                           }
@@ -72,8 +79,12 @@ class _WebViewState extends State<WebView> {
                       style: interText(Colors.white, 20, FontWeight.bold),
                       keyboardType: TextInputType.number,
                       inputFormatters: [
-                        LengthLimitingTextInputFormatter(7),
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                        CurrencyTextInputFormatter(
+                          locale: 'id',
+                          decimalDigits: 0,
+                          symbol: '',
+                        ),
+                        LengthLimitingTextInputFormatter(10),
                       ],
                       autofocus: _isEditBalance ? true : false,
                       decoration: InputDecoration(
@@ -128,12 +139,11 @@ class _WebViewState extends State<WebView> {
                   child: IntrinsicWidth(
                     child: TextFormField(
                       onFieldSubmitted: (String value) {
-                        print("hallo anjay");
                         setState(() {
                           _isEditDailyTarget = false;
                           if (value != "") {
-                            dailyTargetProvider
-                                .setDailyTarget(int.parse(value));
+                            dailyTargetProvider.setDailyTarget(
+                                int.parse(value.replaceAll(".", "")));
                           } else {
                             dailyTargetProvider.setDailyTarget(0);
                           }
@@ -141,11 +151,15 @@ class _WebViewState extends State<WebView> {
                       },
                       keyboardType: TextInputType.number,
                       inputFormatters: [
-                        LengthLimitingTextInputFormatter(7),
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                        CurrencyTextInputFormatter(
+                          locale: 'id',
+                          decimalDigits: 0,
+                          symbol: '',
+                        ),
+                        LengthLimitingTextInputFormatter(10),
                       ],
                       style: poppinsText(green, 12),
-                      initialValue: "${dailyTarget}",
+                      initialValue: formatter.format("${dailyTarget}"),
                       enabled: _isEditDailyTarget ? true : false,
                       decoration: InputDecoration(
                         border: InputBorder.none,
@@ -177,10 +191,12 @@ class _WebViewState extends State<WebView> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children:
-                  (dailyTargetProvider.dailyTarget >= _dailyTransactionAmount)
+                  (dailyTargetProvider.dailyTarget >= dailyTransactionAmount)
                       ? [
                           Text(
-                            'Rp ${dailyTargetProvider.dailyTarget - _dailyTransactionAmount}',
+                            "Rp " +
+                                formatter.format(
+                                    "${dailyTargetProvider.dailyTarget - dailyTransactionAmount}"),
                             style: interText(Colors.white, 16, FontWeight.w600),
                           ),
                           const SizedBox(width: 8),
@@ -191,7 +207,9 @@ class _WebViewState extends State<WebView> {
                         ]
                       : [
                           Text(
-                            'Rp ${_dailyTransactionAmount - dailyTargetProvider.dailyTarget}',
+                            "Rp " +
+                                formatter.format(
+                                    "${dailyTransactionAmount - dailyTargetProvider.dailyTarget}"),
                             style: interText(Colors.white, 16, FontWeight.w600),
                           ),
                           const SizedBox(width: 8),
@@ -205,7 +223,7 @@ class _WebViewState extends State<WebView> {
         ),
         Expanded(
           child: MyTransactions(
-            dailyTransactionAmount: _dailyTransactionAmount,
+            dailyTransactionAmount: dailyTransactionAmount,
             transactions: transactions,
           ),
         ),

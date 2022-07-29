@@ -1,3 +1,4 @@
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +17,6 @@ class MobileView extends StatefulWidget {
 }
 
 class _MobileViewState extends State<MobileView> {
-  int _dailyTransactionAmount = 0;
   bool _isEditBalance = false;
   bool _isEditDailyTarget = false;
 
@@ -36,6 +36,12 @@ class _MobileViewState extends State<MobileView> {
     for (int i = 0; i < transactions.length; i++) {
       dailyTransactionAmount += transactions[i].amount;
     }
+
+    final CurrencyTextInputFormatter formatter = CurrencyTextInputFormatter(
+      locale: 'id',
+      decimalDigits: 0,
+      symbol: '',
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,12 +65,13 @@ class _MobileViewState extends State<MobileView> {
                   color: _isEditBalance ? lightBlue : Colors.transparent,
                   child: IntrinsicWidth(
                     child: TextFormField(
-                      initialValue: "${balance}",
+                      initialValue: formatter.format("$balance"),
                       onFieldSubmitted: (String value) {
                         setState(() {
                           _isEditBalance = false;
                           if (value != "") {
-                            balanceProvider.setBalance(int.parse(value));
+                            balanceProvider.setBalance(
+                                int.parse(value.replaceAll(".", "")));
                           } else {
                             balanceProvider.setBalance(0);
                           }
@@ -74,8 +81,13 @@ class _MobileViewState extends State<MobileView> {
                       style: interText(Colors.white, 20, FontWeight.bold),
                       keyboardType: TextInputType.number,
                       inputFormatters: [
-                        LengthLimitingTextInputFormatter(7),
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                        CurrencyTextInputFormatter(
+                          locale: 'id',
+                          decimalDigits: 0,
+                          symbol: '',
+                        ),
+                        LengthLimitingTextInputFormatter(10),
+                        // FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                       ],
                       autofocus: _isEditBalance ? true : false,
                       decoration: InputDecoration(
@@ -137,7 +149,7 @@ class _MobileViewState extends State<MobileView> {
                           _isEditDailyTarget = false;
                           if (value != "") {
                             dailyTargetProvider
-                                .setDailyTarget(int.parse(value));
+                                .setDailyTarget(int.parse(value.replaceAll(".", "")));
                           } else {
                             dailyTargetProvider.setDailyTarget(0);
                           }
@@ -145,11 +157,17 @@ class _MobileViewState extends State<MobileView> {
                       },
                       keyboardType: TextInputType.number,
                       inputFormatters: [
+                        CurrencyTextInputFormatter(
+                          locale: 'id',
+                          decimalDigits: 0,
+                          symbol: '',
+                        ),
                         LengthLimitingTextInputFormatter(7),
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                        // FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                       ],
                       style: poppinsText(green, 12),
-                      initialValue: "${dailyTarget}",
+                      // initialValue: "${dailyTarget}",
+                      initialValue: formatter.format("$dailyTarget"),
                       enabled: _isEditDailyTarget ? true : false,
                       decoration: InputDecoration(
                         border: InputBorder.none,
@@ -181,7 +199,7 @@ class _MobileViewState extends State<MobileView> {
               children: (dailyTarget >= dailyTransactionAmount)
                   ? [
                       Text(
-                        'Rp ${dailyTarget - dailyTransactionAmount}',
+                        "Rp " + formatter.format('${dailyTarget - dailyTransactionAmount}'),
                         style: interText(Colors.white, 16, FontWeight.w600),
                       ),
                       const SizedBox(width: 8),
@@ -192,7 +210,7 @@ class _MobileViewState extends State<MobileView> {
                     ]
                   : [
                       Text(
-                        'Rp ${dailyTransactionAmount - dailyTarget}',
+                        "Rp " + formatter.format('${dailyTransactionAmount - dailyTarget}'),
                         style: interText(Colors.white, 16, FontWeight.w600),
                       ),
                       const SizedBox(width: 8),

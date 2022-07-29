@@ -9,7 +9,6 @@ class DailyTargetProvider extends ChangeNotifier {
 
   void setDailyTarget(int dailyTarget) {
     _dailyTarget = dailyTarget;
-    print("daily target diganti $dailyTarget");
     notifyListeners();
   }
 }

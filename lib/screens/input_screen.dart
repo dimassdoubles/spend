@@ -1,3 +1,4 @@
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -13,14 +14,11 @@ class InputScreen extends StatefulWidget {
 
   const InputScreen({Key? key}) : super(key: key);
 
-  // final Data data;
-
   @override
   State<InputScreen> createState() => _InputScreenState();
 }
 
 class _InputScreenState extends State<InputScreen> {
-  // Data data = Data(balance: 0, dailyTarget: 0, transactions: []);
   int amount = 0;
   String description = "";
 
@@ -32,6 +30,12 @@ class _InputScreenState extends State<InputScreen> {
     final transactionsProvider = Provider.of<TransactionsProvider>(context);
 
     int _balance = balanceProvider.balance;
+
+    final CurrencyTextInputFormatter formatter = CurrencyTextInputFormatter(
+      locale: 'id',
+      decimalDigits: 0,
+      symbol: '',
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -71,7 +75,11 @@ class _InputScreenState extends State<InputScreen> {
                   style: interText(Colors.white, 20, FontWeight.bold),
                   keyboardType: TextInputType.number,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    CurrencyTextInputFormatter(
+                          locale: 'id',
+                          decimalDigits: 0,
+                          symbol: '',
+                    ),
                   ],
                   decoration: InputDecoration(
                     prefixText: 'Rp ',
@@ -79,10 +87,9 @@ class _InputScreenState extends State<InputScreen> {
                     border: InputBorder.none,
                   ),
                   onChanged: (String value) {
-                    print(value);
                     setState(() {
                       try {
-                        amount = int.parse(value);
+                        amount = int.parse(value.replaceAll(".", ""));
                       } catch (e) {
                         amount = 0;
                       }
